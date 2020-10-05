@@ -20,17 +20,17 @@ function(set_msvc_project_configuration project_name)
             WIN32_LEAN_AND_MEAN # Trim it down.
     )
 
-    # if both options are true, only 17 mode is enabled.
+    # if both options are true, only use latest mode is enabled.
     # if neither option is enabled, MSVC will use it's default.
-    if(MSVC_CXX_17_MODE)
-        set(MSVC_COMPILER_FLAGS 
-                ${MSVC_COMPILER_FLAGS}
-                /std:c++17      # use C++ 17 
-        )
-    elseif(MSVC_CXX_LATEST)
+    if(MSVC_CXX_LATEST)
         set(MSVC_COMPILER_FLAGS 
                 ${MSVC_COMPILER_FLAGS}
                 /std:c++latest  # use C++ Latest features (20?)
+        )
+    elseif(MSVC_CXX_17_MODE)
+        set(MSVC_COMPILER_FLAGS 
+                ${MSVC_COMPILER_FLAGS}
+                /std:c++17      # use C++ 17 
         )
     endif()
 
