@@ -1,0 +1,19 @@
+# ignore emacs files
+backup/
+
+# cmake build directory
+build/
+CMakeCache.txt
+CMakeFiles/
+
+# vscode and visual studio specific
+.vscode/*
+.vs/
+CMake*.json
+*.user
+
+# but include vscode launch settings.
+!.vscode/launch.json
+
+# VS Code ionide extension 
+.ionide/
