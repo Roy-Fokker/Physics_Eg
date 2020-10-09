@@ -1,9 +1,18 @@
-#include <fmt/core.h>
+#include "os/window.h"
 #include <string_view>
 
 int main()
 {
-	fmt::print("Hello World!");
+	auto wnd = os::window({
+		.title = L"Physics Example",
+		.size = { 800, 600 },
+	});
+
+	wnd.show();
+	while (wnd.handle())
+	{
+		wnd.process_messages();
+	}
 	
 	return 0;
 }
