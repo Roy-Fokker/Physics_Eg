@@ -1,0 +1,7 @@
+{
+    "name": "physics_eg",
+    "version-string": "0.0.1",
+    "dependencies": [
+        "fmt"
+    ]
+}
