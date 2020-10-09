@@ -11,6 +11,10 @@ target_sources(physics_eg
         os/window.cpp
         os/window.h)
 
+target_precompile_headers(physics_eg
+    PRIVATE
+        pch.h)
+
 # Link with libraries
 target_link_libraries(physics_eg
     PRIVATE
