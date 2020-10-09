@@ -1,7 +1,8 @@
 {
-    "name": "physics_eg",
+    "name": "physics-eg",
     "version-string": "0.0.1",
     "dependencies": [
-        "fmt"
+        "fmt",
+        "catch2"
     ]
 }
