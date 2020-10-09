@@ -1,7 +1,6 @@
 #include "os/window.h"
-#include <string_view>
 
-int main()
+auto main() -> int
 {
 	auto wnd = os::window({
 		.title = L"Physics Example",
