@@ -7,7 +7,9 @@ add_executable(physics_eg)
 # Source for 'physics_eg' executable
 target_sources(physics_eg
     PRIVATE
-        main.cpp)
+        main.cpp
+        os/window.cpp
+        os/window.h)
 
 # Link with libraries
 target_link_libraries(physics_eg
