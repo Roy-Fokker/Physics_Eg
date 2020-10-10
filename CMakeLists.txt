@@ -22,6 +22,7 @@ target_compile_features(project_configuration
 
 # Load MSVC specific settings
 set(MSVC_CXX_LATEST ON)
+set(MSVC_WIN32 ON)
 set_msvc_project_configuration(project_configuration)
 
 # Place build output to build/bin directory

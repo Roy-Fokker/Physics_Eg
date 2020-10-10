@@ -2,6 +2,7 @@
 function(set_msvc_project_configuration project_name)
     option(MSVC_CXX_17_MODE "Enable C++17" ON)
     option(MSVC_CXX_LATEST  "Enable C++Latest" OFF)
+    option(MSVC_WIN32 "Enable Windows Subsystem" OFF)
 
     set(MSVC_COMPILER_FLAGS
             /W3             # Enable all warnings
@@ -10,7 +11,7 @@ function(set_msvc_project_configuration project_name)
     )
 
     set(MSVC_LINKER_FLAGS
-        /ENTRY:mainCRTStartup # use int main() as entry point.
+        /entry:mainCRTStartup # use int main() as entry point.
     )
 
     set(MSVC_COMPILE_DEFINITIONS
@@ -31,6 +32,13 @@ function(set_msvc_project_configuration project_name)
         set(MSVC_COMPILER_FLAGS 
                 ${MSVC_COMPILER_FLAGS}
                 /std:c++17      # use C++ 17 
+        )
+    endif()
+
+    if(MSVC_WIN32)
+        set(MSVC_LINKER_FLAGS
+                ${MSVC_LINKER_FLAGS}
+                /subsystem:Windows
         )
     endif()
 
