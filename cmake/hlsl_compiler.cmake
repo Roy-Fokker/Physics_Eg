@@ -1,7 +1,7 @@
 # Compile HLSL files for given target.
 
 # Function: target_shader_sources
-# Usage: target_shader_sources(<target> <PRIVATE> [<file> <shader profile> ...])
+# Usage: target_shader_sources(<target> <PRIVATE|PUBLIC> [<file> <shader profile> ...])
 function(target_shader_sources target_project)
     # Find the shader compiler
     find_program(DXC dxc DOC "DirectX Shader Compiler")
