@@ -20,15 +20,15 @@ target_compile_features(project_configuration
     INTERFACE
         cxx_std_20)
 
-# Load MSVC specific settings
-set(MSVC_CXX_LATEST ON)
-set(MSVC_WIN32 ON)
-set_msvc_project_configuration(project_configuration)
-
 # If we are in DEBUG mode
 target_compile_definitions(project_configuration
     INTERFACE
         $<$<CONFIG:Debug>:DEBUG _DEBUG>)
+
+# Load MSVC specific settings
+set(MSVC_CXX_LATEST ON)
+set(MSVC_WIN32 ON)
+set_msvc_project_configuration(project_configuration)
 
 # Place build output to build/bin directory
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin/")
