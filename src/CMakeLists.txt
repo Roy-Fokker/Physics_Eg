@@ -9,7 +9,9 @@ target_sources(physics_eg
     PRIVATE
         main.cpp
         os/window.cpp
-        os/window.h)
+        os/window.h
+        os/clock.cpp
+        os/clock.h)
 
 target_precompile_headers(physics_eg
     PRIVATE
