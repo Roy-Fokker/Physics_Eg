@@ -61,5 +61,8 @@ namespace os
 
 		std::unique_ptr<window_impl> wnd;
 	};
+
+	auto get_client_area(HWND hWnd) -> const std::pair<uint16_t, uint16_t>;
+	auto get_client_area(uintptr_t lParam) -> const std::pair<uint16_t, uint16_t>;
 }
 

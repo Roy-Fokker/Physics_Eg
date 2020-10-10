@@ -6,6 +6,27 @@
 
 using namespace os;
 
+auto os::get_client_area(HWND hWnd) -> const std::pair<uint16_t, uint16_t>
+{
+	RECT rect{};
+	::GetClientRect(hWnd, &rect);
+
+	return 
+	{
+		static_cast<uint16_t>(rect.right - rect.left),
+		static_cast<uint16_t>(rect.bottom - rect.top)
+	};
+}
+
+auto os::get_client_area(uintptr_t lParam) -> const std::pair<uint16_t, uint16_t>
+{
+	return
+	{
+		LOWORD(lParam),
+		HIWORD(lParam)
+	};
+}
+
 struct window::window_impl: public CWindowImpl<window::window_impl>
 {
 	window_impl() = default;
