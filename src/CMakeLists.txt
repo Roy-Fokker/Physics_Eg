@@ -12,8 +12,13 @@ target_sources(physics_eg
         os/window.cpp
         os/window.h
         os/clock.cpp
-        os/clock.h)
+        os/clock.h
+        gfx/renderer.cpp
+        gfx/renderer.h
+        gfx/direct3d11.cpp
+        gfx/direct3d11.h)
 
+# Use Precompiled headers for std/os stuff
 target_precompile_headers(physics_eg
     PRIVATE
         pch.h)
