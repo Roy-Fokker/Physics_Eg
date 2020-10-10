@@ -1,5 +1,6 @@
 # Find Depedencies
 find_package(fmt REQUIRED)
+find_package(cppitertools REQUIRED)
 
 # Executable to build
 add_executable(physics_eg)
