@@ -8,6 +8,9 @@ include(cmake/vcpkg.cmake)
 # msvc configuration cmake
 include(cmake/msvc_settings.cmake)
 
+# hlsl compiler cmake
+include(cmake/hlsl_compiler.cmake)
+
 # Project Name and Language
 project(physics_eg
         LANGUAGES CXX)
