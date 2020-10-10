@@ -16,7 +16,9 @@ target_sources(physics_eg
         gfx/renderer.cpp
         gfx/renderer.h
         gfx/direct3d11.cpp
-        gfx/direct3d11.h)
+        gfx/direct3d11.h
+        gfx/renderpass.cpp
+        gfx/renderpass.h)
 
 # Use Precompiled headers for std/os stuff
 target_precompile_headers(physics_eg

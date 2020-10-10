@@ -1,6 +1,7 @@
 #pragma once
 
 #include "direct3d11.h"
+#include "renderpass.h"
 
 namespace gfx
 {
@@ -19,5 +20,6 @@ namespace gfx
 		uint16_t width{}, height{};
 
 		std::unique_ptr<direct3d11> d3d{};
+		std::unique_ptr<render_pass> rp{};
 	};
 }
