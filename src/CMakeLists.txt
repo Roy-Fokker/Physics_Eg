@@ -36,3 +36,5 @@ target_shader_sources(physics_eg
     PRIVATE
         shader/vs.hlsl vs_5_1
         shader/ps.hlsl ps_5_1)
+
+set_application_manifest(physics_eg manifest.xml)

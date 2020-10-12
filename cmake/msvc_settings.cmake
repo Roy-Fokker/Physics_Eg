@@ -62,3 +62,23 @@ function(set_msvc_project_configuration project_name)
         )
     endif()
 endfunction(set_msvc_project_configuration project_name)
+
+# Amend application manifest
+function(set_application_manifest project_name manifest_file)
+    get_filename_component(manifest_file ${manifest_file} ABSOLUTE)
+    
+    if (MSVC)
+        if (CMAKE_MAJOR_VERSION LESS 3)
+            message(WARNING "CMake version 3.0 or newer is required use build variable TARGET_FILE")
+        else()
+            ADD_CUSTOM_COMMAND(
+                TARGET ${project_name} POST_BUILD
+                COMMAND "mt.exe" 
+                        -manifest \"${manifest_file}\" 
+                        -inputresource:\"$<TARGET_FILE:${project_name}>\"\;\#1 
+                        -outputresource:\"$<TARGET_FILE:${project_name}>\"\;\#1
+                COMMENT "Adding display aware manifest..." 
+            )
+        endif()
+    ENDIF(MSVC)
+endfunction(set_application_manifest project_name manifest_file)
