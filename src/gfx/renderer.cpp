@@ -1,6 +1,7 @@
 #include "renderer.h"
 
 #include "../os/window.h"
+#include "../os/helper.h"
 
 using namespace gfx;
 
@@ -15,6 +16,18 @@ renderer::renderer(HWND hWnd)
 	std::tie(width, height) = os::get_client_area(hWnd);
 	d3d = std::make_unique<direct3d11>(hWnd);
 	rp = std::make_unique<render_pass>(d3d->get_device(), d3d->get_swapchain());
+
+	auto pl_desc = pipeline::desc{
+		.blend = blend_mode::opaque,
+		.depth_stencil = depth_stencil_mode::none,
+		.rasterizer = rasterizer_mode::cull_clockwise,
+		.sampler = sampler_mode::anisotropic_clamp,
+		.primitive_topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+		.input_element_layout = std::vector{input_element_name::position, input_element_name::color},
+		.vertex_shader_bytecode = os::read_binary_file("vs.cso"),
+		.pixel_shader_bytecode = os::read_binary_file("ps.cso"),
+	};
+	pl = std::make_unique<pipeline>(d3d->get_device(), pl_desc);
 }
 
 renderer::~renderer() = default;

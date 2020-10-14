@@ -2,6 +2,7 @@
 
 #include "direct3d11.h"
 #include "renderpass.h"
+#include "pipeline.h"
 
 namespace gfx
 {
@@ -21,5 +22,6 @@ namespace gfx
 
 		std::unique_ptr<direct3d11> d3d{};
 		std::unique_ptr<render_pass> rp{};
+		std::unique_ptr<pipeline> pl{};
 	};
 }
