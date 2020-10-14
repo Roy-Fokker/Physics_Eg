@@ -17,7 +17,8 @@ renderer::renderer(HWND hWnd)
 	d3d = std::make_unique<direct3d11>(hWnd);
 	rp = std::make_unique<render_pass>(d3d->get_device(), d3d->get_swapchain());
 
-	auto pl_desc = pipeline::desc{
+	pl = std::make_unique<pipeline>(d3d->get_device(), pipeline::desc
+	{
 		.blend = blend_mode::opaque,
 		.depth_stencil = depth_stencil_mode::none,
 		.rasterizer = rasterizer_mode::cull_clockwise,
@@ -26,8 +27,7 @@ renderer::renderer(HWND hWnd)
 		.input_element_layout = std::vector{input_element_name::position, input_element_name::color},
 		.vertex_shader_bytecode = os::read_binary_file("vs.cso"),
 		.pixel_shader_bytecode = os::read_binary_file("ps.cso"),
-	};
-	pl = std::make_unique<pipeline>(d3d->get_device(), pl_desc);
+	});
 }
 
 renderer::~renderer() = default;
@@ -56,6 +56,7 @@ void renderer::draw()
 	rp->activate(context);
 	rp->clear(context, clear_color);
 
+	pl->activate(context);
 
 	d3d->present(enable_vSync);
 }

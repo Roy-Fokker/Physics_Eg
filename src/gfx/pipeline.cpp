@@ -288,8 +288,6 @@ void pipeline::create_input_layout(device_t device, const std::vector<input_elem
 
 void pipeline::create_vertex_shader(device_t device, const std::vector<uint8_t> &vso)
 {
-	auto thr = device->CreateVertexShader(vso.data(), vso.size(), NULL, NULL);
-
 	auto hr = device->CreateVertexShader(vso.data(),
 	                                     vso.size(),
 	                                     NULL,
