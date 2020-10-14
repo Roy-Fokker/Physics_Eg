@@ -22,7 +22,9 @@ target_sources(physics_eg
         gfx/renderpass.cpp
         gfx/renderpass.h
         gfx/pipeline.cpp
-        gfx/pipeline.h)
+        gfx/pipeline.h
+        gfx/gpu_data.cpp
+        gfx/gpu_data.h)
 
 # Use Precompiled headers for std/os stuff
 target_precompile_headers(physics_eg
