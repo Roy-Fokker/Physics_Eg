@@ -4,6 +4,7 @@
 
 #include <d3d11_4.h>
 #include <dxgi1_6.h>
+#include <DirectXMath.h>
 #include <atlbase.h>
 
 #include <string_view>
@@ -17,3 +18,4 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
+#include <ratio>
