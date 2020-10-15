@@ -35,6 +35,7 @@ function(set_msvc_project_configuration project_name)
         )
     endif()
 
+    # If we are building for Windows GUI
     if(MSVC_WIN32)
         set(MSVC_LINKER_FLAGS
                 ${MSVC_LINKER_FLAGS}
@@ -67,13 +68,16 @@ endfunction(set_msvc_project_configuration project_name)
 function(set_application_manifest project_name manifest_file)
     get_filename_component(manifest_file ${manifest_file} ABSOLUTE)
     
+    # Only run if we are compiling with MSVC
     if (MSVC)
+        # Make sure the CMake version if greater than 3.0
         if (CMAKE_MAJOR_VERSION LESS 3)
             message(WARNING "CMake version 3.0 or newer is required use build variable TARGET_FILE")
         else()
             ADD_CUSTOM_COMMAND(
                 TARGET ${project_name} POST_BUILD
                 COMMAND "mt.exe" 
+                        -nologo
                         -manifest \"${manifest_file}\" 
                         -inputresource:\"$<TARGET_FILE:${project_name}>\"\;\#1 
                         -outputresource:\"$<TARGET_FILE:${project_name}>\"\;\#1
