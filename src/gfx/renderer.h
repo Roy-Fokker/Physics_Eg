@@ -5,6 +5,8 @@
 #include "pipeline.h"
 #include "gpu_data.h"
 
+#include "..\os\clock.h"
+
 namespace gfx
 {
 	class renderer
@@ -15,7 +17,7 @@ namespace gfx
 		~renderer();
 
 		auto on_resize(uintptr_t wParam, uintptr_t lParam) -> bool;
-		void update();
+		void update(const os::clock &clk);
 		void draw();
 
 	private:

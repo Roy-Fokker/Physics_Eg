@@ -51,19 +51,21 @@ auto renderer::on_resize(uintptr_t wParam, uintptr_t lParam) -> bool
 	return true;
 }
 
-void renderer::update()
+void renderer::update(const os::clock &clk)
 {
 	using namespace DirectX;
 
 	auto context = d3d->get_context();
-	static auto angle_deg = 0.0;
-	angle_deg += 90.0f * 0.001f;
+	
+	auto dt = clk.delta<std::ratio<1>>();
+	static auto angle_deg = 0.0f;
+	angle_deg += 90.0f * static_cast<float>(dt);
 	if (angle_deg >= 360.0f)
 	{
 		angle_deg -= 360.0f;
 	}
 
-	auto angle = XMConvertToRadians(static_cast<float>(angle_deg));
+	auto angle = XMConvertToRadians(angle_deg);
 	auto cube_pos = matrix{ XMMatrixIdentity() };
 	cube_pos.data = XMMatrixRotationY(angle);
 	cube_pos.data = XMMatrixTranspose(cube_pos.data);

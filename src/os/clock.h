@@ -13,14 +13,14 @@ namespace os
 		void tick();
 		void reset();
 
-		template <std::ratio T>
+		template <typename T>
 		auto count() const -> double
 		{
 			using ts = std::chrono::duration<double, T>;
 			return std::chrono::duration_cast<ts>(total_time).count();
 		};
 
-		template <std::ratio T>
+		template <typename T>
 		auto delta() const -> double
 		{
 			using ts = std::chrono::duration<double, T>;

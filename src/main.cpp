@@ -23,7 +23,7 @@ auto main() -> int
 		wnd.process_messages();
 		clk.tick();
 
-		rndr.update();
+		rndr.update(clk);
 		rndr.draw();
 	}
 	
