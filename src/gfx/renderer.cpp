@@ -3,6 +3,8 @@
 #include "../os/window.h"
 #include "../os/helper.h"
 
+#include <imgui.h>
+
 using namespace gfx;
 
 namespace 
@@ -19,6 +21,8 @@ renderer::renderer(HWND hWnd)
 	std::tie(width, height) = os::get_client_area(hWnd);
 	d3d = std::make_unique<direct3d11>(hWnd);
 	rp = std::make_unique<render_pass>(d3d->get_device(), d3d->get_swapchain());
+
+	ui = std::make_unique<gui>(hWnd, d3d->get_device(), d3d->get_context());
 
 	pl = std::make_unique<pipeline>(d3d->get_device(), pipeline::desc
 	{
@@ -90,6 +94,14 @@ void renderer::draw()
 
 	mb->activate(context);
 	mb->draw(context);
+
+	
+	ui->new_frame();
+	ImGui::Begin("Hello World!");
+	ImGui::Text("Some text");
+	ImGui::End();
+	ui->draw_frame();
+
 
 	d3d->present(enable_vSync);
 }

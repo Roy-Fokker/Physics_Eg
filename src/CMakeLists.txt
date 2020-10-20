@@ -1,6 +1,7 @@
 # Find Depedencies
 find_package(fmt REQUIRED)
 find_package(cppitertools REQUIRED)
+find_package(imgui REQUIRED)
 
 # Executable to build
 add_executable(physics_eg)
@@ -24,7 +25,9 @@ target_sources(physics_eg
         gfx/pipeline.cpp
         gfx/pipeline.h
         gfx/gpu_data.cpp
-        gfx/gpu_data.h)
+        gfx/gpu_data.h
+        gfx/gui.cpp
+        gfx/gui.h)
 
 # Use Precompiled headers for std/os stuff
 target_precompile_headers(physics_eg
@@ -35,7 +38,8 @@ target_precompile_headers(physics_eg
 target_link_libraries(physics_eg
     PRIVATE
         project_configuration
-        fmt::fmt)
+        fmt::fmt
+        imgui::imgui)
 
 # Build the shaders
 target_shader_sources(physics_eg

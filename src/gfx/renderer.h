@@ -4,6 +4,7 @@
 #include "renderpass.h"
 #include "pipeline.h"
 #include "gpu_data.h"
+#include "gui.h"
 
 #include "..\os\clock.h"
 
@@ -30,6 +31,7 @@ namespace gfx
 		std::unique_ptr<direct3d11> d3d{};
 		std::unique_ptr<render_pass> rp{};
 		std::unique_ptr<pipeline> pl{};
+		std::unique_ptr<gui> ui{};
 
 		std::unique_ptr<mesh_buffer> mb{};
 		std::unique_ptr<constant_buffer> proj_cb{};
