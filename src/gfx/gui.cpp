@@ -14,6 +14,8 @@ gui::gui(HWND hWnd, ID3D11Device *device, ID3D11DeviceContext *context)
 	ImGui::StyleColorsDark();
 	ImGui_ImplWin32_Init(hWnd);
 	ImGui_ImplDX11_Init(device, context);
+
+	new_frame();
 }
 
 gui::~gui()
@@ -39,4 +41,6 @@ void gui::draw_frame()
 {
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	new_frame();
 }

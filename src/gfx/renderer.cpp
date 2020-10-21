@@ -58,10 +58,11 @@ auto renderer::on_resize(uintptr_t wParam, uintptr_t lParam) -> bool
 void renderer::update(const os::clock &clk)
 {
 	using namespace DirectX;
+	using sec = std::ratio<1>;
 
 	auto context = d3d->get_context();
 	
-	auto dt = clk.delta<std::ratio<1>>();
+	auto dt = clk.delta<sec>();
 	static auto angle_deg = 0.0f;
 	angle_deg += 90.0f * static_cast<float>(dt);
 	if (angle_deg >= 360.0f)
@@ -77,6 +78,16 @@ void renderer::update(const os::clock &clk)
 	trsf_cb->update(context,
 	                sizeof(matrix),
 	                reinterpret_cast<const void *>(&cube_pos));
+
+	static auto frame_count { 0 };
+	auto time_count = clk.count<sec>();
+	frame_count++;
+
+	ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Text("Frame Count: %d", frame_count);
+	ImGui::Text("Total Time: %f", time_count);
+	ImGui::Text("FPS: %f", frame_count/time_count);
+	ImGui::End();
 }
 
 void renderer::draw()
@@ -95,13 +106,7 @@ void renderer::draw()
 	mb->activate(context);
 	mb->draw(context);
 
-	
-	ui->new_frame();
-	ImGui::Begin("Hello World!");
-	ImGui::Text("Some text");
-	ImGui::End();
 	ui->draw_frame();
-
 
 	d3d->present(enable_vSync);
 }
@@ -190,5 +195,4 @@ void renderer::make_cb()
 			.data = reinterpret_cast<const void *>(&cube_pos)
 		});
 	}
-
 }
