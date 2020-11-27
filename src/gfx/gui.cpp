@@ -27,7 +27,7 @@ gui::~gui()
 
 void gui::process_messages()
 {
-
+	
 }
 
 void gui::new_frame()
