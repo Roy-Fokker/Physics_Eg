@@ -4,7 +4,11 @@
 #include <atlwin.h>
 #include <array>
 
+#include <imgui_impl_win32.h>
+
 using namespace os;
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 auto os::get_client_area(HWND hWnd) -> const std::pair<uint16_t, uint16_t>
 {
@@ -40,12 +44,15 @@ struct window::window_impl: public CWindowImpl<window::window_impl>
 	}
 
 	BEGIN_MSG_MAP(atl_window)
+		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 		MESSAGE_HANDLER(WM_DESTROY, on_wnd_destroy)
 		MESSAGE_HANDLER(WM_PAINT, on_wnd_paint)
 
 		MESSAGE_HANDLER(WM_ACTIVATEAPP, on_wnd_activate)
 		MESSAGE_HANDLER(WM_SIZE, on_wnd_resize)
+
 		MESSAGE_HANDLER(WM_KEYUP, on_wnd_keypress)
+
 		MESSAGE_HANDLER(WM_MOUSEMOVE, on_wnd_mousemove)
 	END_MSG_MAP()
 
