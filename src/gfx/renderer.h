@@ -24,11 +24,8 @@ namespace gfx
 		void add_mesh(const mesh &model, const matrix &transform);
 
 	private:
-		void make_mb();
 		void make_cb();
-
-		matrix cube_pos{};
-
+		
 	private:
 		uint16_t width{}, height{};
 

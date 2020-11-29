@@ -39,7 +39,6 @@ renderer::renderer(HWND hWnd)
 		.pixel_shader_bytecode = os::read_binary_file("ps.cso"),
 	});
 
-	make_mb();
 	make_cb();
 }
 
@@ -64,23 +63,6 @@ void renderer::update(const os::clock &clk)
 	using sec = std::ratio<1>;
 
 	auto context = d3d->get_context();
-	
-	auto dt = clk.delta<sec>();
-	static auto angle_deg = 0.0f;
-	angle_deg += 90.0f * static_cast<float>(dt);
-	if (angle_deg >= 360.0f)
-	{
-		angle_deg -= 360.0f;
-	}
-
-	ImGui::Begin("Cube", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	ImGui::Text("Angle: %.2f", angle_deg);
-	ImGui::End();
-
-	auto angle = XMConvertToRadians(angle_deg);
-	cube_pos = matrix{ XMMatrixIdentity() };
-	cube_pos.data = XMMatrixRotationY(angle);
-	cube_pos.data = XMMatrixTranspose(cube_pos.data);
 
 	for (auto &&[src, dst] : iter::zip(transforms_src, transforms))
 	{
@@ -137,53 +119,6 @@ void renderer::add_mesh(const mesh &model, const matrix &transform)
 		.size = sizeof(matrix),
 		.data = reinterpret_cast<const void *>(&transform)
 	}));
-}
-
-void renderer::make_mb()
-{
-	auto cube_vertices = std::vector{
-		vertex{ { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f } },
-		vertex{ { -1.0f, +1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-		vertex{ { +1.0f, +1.0f, -1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } },
-		vertex{ { +1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-		vertex{ { -1.0f, -1.0f, +1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
-		vertex{ { -1.0f, +1.0f, +1.0f }, { 0.0f, 1.0f, 1.0f, 1.0f } },
-		vertex{ { +1.0f, +1.0f, +1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
-		vertex{ { +1.0f, -1.0f, +1.0f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
-	};
-
-	auto cube_indicies = std::vector<uint32_t>{
-		0, 1, 2, 0, 2, 3,
-		4, 6, 5, 4, 7, 6,
-		4, 5, 1, 4, 1, 0,
-		3, 2, 6, 3, 6, 7,
-		1, 5, 6, 1, 6, 2,
-		4, 0, 3, 4, 3, 7,
-	};
-
-	auto cube = mesh 
-	{
-		.vertices = cube_vertices,
-		.indicies = cube_indicies
-	};
-
-//	auto device = d3d->get_device();
-//	mb = std::make_unique<mesh_buffer>(device, mesh_buffer::make_mesh_desc(cube));
-
-	// Transform
-	using namespace DirectX;
-
-	cube_pos = matrix{ XMMatrixTranslation(0.0f, 0.0f, 0.0f) };
-	cube_pos.data = XMMatrixTranspose(cube_pos.data);
-		// trsf_cb = std::make_unique<constant_buffer>(device, constant_buffer::desc
-		// {
-		// 	.stage = shader_stage::vertex,
-		// 	.slot = shader_slot::transform,
-		// 	.size = sizeof(matrix),
-		// 	.data = reinterpret_cast<const void *>(&cube_pos)
-		// });
-	
-	add_mesh(cube, cube_pos);
 }
 
 void renderer::make_cb()
