@@ -68,6 +68,7 @@ auto main() -> int
 	auto clk = os::clock();
 	// Tell system about data
 	rndr.add_mesh(cube_mesh, cube_matrix);
+	sim.add_object(cube_mesh, cube_matrix);
 
 	wnd.show();
 	while (wnd.handle() and not quit)
