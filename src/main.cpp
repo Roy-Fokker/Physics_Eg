@@ -42,12 +42,16 @@ auto main() -> int
 	auto cube_mesh = make_cube_mesh();
 	auto cube_matrix = gfx::matrix{};
 
+	// System objects
 	auto wnd = os::window({
 		.title = L"Physics Example",
 		.size = { 800, 600 },
 	});
-
 	auto rndr = gfx::renderer(wnd.handle());
+	auto sim = sim::simulation();
+	auto clk = os::clock();
+
+	// Window callbacks
 	wnd.set_callback(os::window_msg::resize, [&](uintptr_t wParam, uintptr_t lParam)
 	{
 		return rndr.on_resize(wParam, lParam);
@@ -63,14 +67,14 @@ auto main() -> int
 		return false;
 	});
 
-	auto sim = sim::simulation();
-
-	auto clk = os::clock();
 	// Tell system about data
 	rndr.add_mesh(cube_mesh, cube_matrix);
 	sim.add_object(cube_mesh, cube_matrix);
 
+	// Show window
 	wnd.show();
+
+	// The Loop
 	while (wnd.handle() and not quit)
 	{
 		wnd.process_messages();
