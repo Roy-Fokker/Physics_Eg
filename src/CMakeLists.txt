@@ -27,7 +27,9 @@ target_sources(physics_eg
         gfx/gpu_data.cpp
         gfx/gpu_data.h
         gfx/gui.cpp
-        gfx/gui.h)
+        gfx/gui.h
+        sim/simulation.cpp
+        sim/simulation.h)
 
 # Use Precompiled headers for std/os stuff
 target_precompile_headers(physics_eg

@@ -1,6 +1,7 @@
 #include "os/window.h"
 #include "os/clock.h"
 #include "gfx/renderer.h"
+#include "sim/simulation.h"
 
 auto main() -> int
 {
@@ -27,6 +28,8 @@ auto main() -> int
 		return false;
 	});
 
+	auto sim = sim::simulation();
+
 	auto clk = os::clock();
 
 	wnd.show();
@@ -34,6 +37,8 @@ auto main() -> int
 	{
 		wnd.process_messages();
 		clk.tick();
+
+		sim.update(clk);
 
 		rndr.update(clk);
 		rndr.draw();
