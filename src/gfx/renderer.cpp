@@ -70,6 +70,10 @@ void renderer::update(const os::clock &clk)
 		angle_deg -= 360.0f;
 	}
 
+	ImGui::Begin("Cube", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Text("Angle: %.2f", angle_deg);
+	ImGui::End();
+
 	auto angle = XMConvertToRadians(angle_deg);
 	auto cube_pos = matrix{ XMMatrixIdentity() };
 	cube_pos.data = XMMatrixRotationY(angle);
