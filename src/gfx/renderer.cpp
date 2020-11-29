@@ -5,7 +5,6 @@
 
 #include <imgui.h>
 
-#include <cppitertools/enumerate.hpp>
 #include <cppitertools/zip.hpp>
 
 using namespace gfx;
