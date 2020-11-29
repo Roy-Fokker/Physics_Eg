@@ -21,9 +21,13 @@ namespace gfx
 		void update(const os::clock &clk);
 		void draw();
 
+		void add_mesh(const mesh &model, const matrix &transform);
+
 	private:
 		void make_mb();
 		void make_cb();
+
+		matrix cube_pos{};
 
 	private:
 		uint16_t width{}, height{};
@@ -33,9 +37,11 @@ namespace gfx
 		std::unique_ptr<pipeline> pl{};
 		std::unique_ptr<gui> ui{};
 
-		std::unique_ptr<mesh_buffer> mb{};
 		std::unique_ptr<constant_buffer> proj_cb{};
 		std::unique_ptr<constant_buffer> view_cb{};
-		std::unique_ptr<constant_buffer> trsf_cb{};
+
+		std::vector<std::unique_ptr<mesh_buffer>> meshes{};
+		std::vector<const matrix *> transforms_src{};
+		std::vector<std::unique_ptr<constant_buffer>> transforms{};
 	};
 }

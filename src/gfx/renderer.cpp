@@ -5,6 +5,9 @@
 
 #include <imgui.h>
 
+#include <cppitertools/enumerate.hpp>
+#include <cppitertools/zip.hpp>
+
 using namespace gfx;
 
 namespace 
@@ -75,13 +78,16 @@ void renderer::update(const os::clock &clk)
 	ImGui::End();
 
 	auto angle = XMConvertToRadians(angle_deg);
-	auto cube_pos = matrix{ XMMatrixIdentity() };
+	cube_pos = matrix{ XMMatrixIdentity() };
 	cube_pos.data = XMMatrixRotationY(angle);
 	cube_pos.data = XMMatrixTranspose(cube_pos.data);
 
-	trsf_cb->update(context,
-	                sizeof(matrix),
-	                reinterpret_cast<const void *>(&cube_pos));
+	for (auto &&[src, dst] : iter::zip(transforms_src, transforms))
+	{
+		dst->update(context,
+					sizeof(matrix),
+					reinterpret_cast<const void *>(src));
+	}
 
 	static auto frame_count { 0 };
 	auto time_count = clk.count<sec>();
@@ -102,17 +108,35 @@ void renderer::draw()
 
 	proj_cb->activate(context);
 	view_cb->activate(context);
-	trsf_cb->activate(context);
 
 	rp->activate(context);
 	rp->clear(context, clear_color);
 
-	mb->activate(context);
-	mb->draw(context);
+	for (auto &&[mb, cb] : iter::zip(meshes, transforms))
+	{
+		cb->activate(context);
+		mb->activate(context);
+		mb->draw(context);
+	}
 
 	ui->draw_frame();
 
 	d3d->present(enable_vSync);
+}
+
+void renderer::add_mesh(const mesh &model, const matrix &transform)
+{
+	auto device = d3d->get_device();
+
+	transforms_src.push_back(&transform);
+	meshes.emplace_back(std::make_unique<mesh_buffer>(device, mesh_buffer::make_mesh_desc(model)));
+	transforms.emplace_back(std::make_unique<constant_buffer>(device, constant_buffer::desc
+	{
+		.stage = shader_stage::vertex,
+		.slot = shader_slot::transform,
+		.size = sizeof(matrix),
+		.data = reinterpret_cast<const void *>(&transform)
+	}));
 }
 
 void renderer::make_mb()
@@ -143,8 +167,23 @@ void renderer::make_mb()
 		.indicies = cube_indicies
 	};
 
-	auto device = d3d->get_device();
-	mb = std::make_unique<mesh_buffer>(device, mesh_buffer::make_mesh_desc(cube));
+//	auto device = d3d->get_device();
+//	mb = std::make_unique<mesh_buffer>(device, mesh_buffer::make_mesh_desc(cube));
+
+	// Transform
+	using namespace DirectX;
+
+	cube_pos = matrix{ XMMatrixTranslation(0.0f, 0.0f, 0.0f) };
+	cube_pos.data = XMMatrixTranspose(cube_pos.data);
+		// trsf_cb = std::make_unique<constant_buffer>(device, constant_buffer::desc
+		// {
+		// 	.stage = shader_stage::vertex,
+		// 	.slot = shader_slot::transform,
+		// 	.size = sizeof(matrix),
+		// 	.data = reinterpret_cast<const void *>(&cube_pos)
+		// });
+	
+	add_mesh(cube, cube_pos);
 }
 
 void renderer::make_cb()
@@ -184,19 +223,6 @@ void renderer::make_cb()
 			.slot = shader_slot::view,
 			.size = sizeof(matrix),
 			.data = reinterpret_cast<const void *>(&view)
-		});
-	}
-
-	// Transform
-	{
-		auto cube_pos = matrix{ XMMatrixTranslation(0.0f, 0.0f, 0.0f) };
-		cube_pos.data = XMMatrixTranspose(cube_pos.data);
-		trsf_cb = std::make_unique<constant_buffer>(device, constant_buffer::desc
-		{
-			.stage = shader_stage::vertex,
-			.slot = shader_slot::transform,
-			.size = sizeof(matrix),
-			.data = reinterpret_cast<const void *>(&cube_pos)
 		});
 	}
 }
