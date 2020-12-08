@@ -70,7 +70,7 @@ void renderer::update(const os::clock &clk)
 					reinterpret_cast<const void *>(src));
 	}
 
-	static auto frame_count { 0 };
+	static auto frame_count { 0u };
 	auto time_count = clk.count<sec>();
 	frame_count++;
 
