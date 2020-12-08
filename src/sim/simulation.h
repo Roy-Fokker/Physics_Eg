@@ -15,5 +15,10 @@ namespace sim
     private:
         std::vector<gfx::matrix *> transforms;
         std::vector<const gfx::mesh *> meshes;
+
+        bool reset { false };
+        float gravity { 10 };
+        DirectX::XMFLOAT3 start_point { 0.0f, 4.0f, 0.0f };
+        DirectX::XMFLOAT3 cube_location {};
     };
 }
