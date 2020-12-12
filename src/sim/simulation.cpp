@@ -11,6 +11,7 @@ void simulation::update(const os::clock &clk)
 	using sec = std::ratio<1>;
 
     auto dt = clk.delta<sec>();
+	auto tt = clk.count<sec>();
 	static auto angle_deg = 0.0f;
 	angle_deg += 90.0f * static_cast<float>(dt);
 	if (angle_deg >= 360.0f)
@@ -18,13 +19,13 @@ void simulation::update(const os::clock &clk)
 		angle_deg -= 360.0f;
 	}
 
+	static auto cube_velocity = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	auto g_vector = XMVectorSet(0.0f, -gravity, 0.0f, 0.0f);
+	static auto cube_position = XMLoadFloat3(&start_point);
 
-	static auto reset_time = 0.0;
-	auto tt = clk.count<sec>() - reset_time;
-	auto g_vector = XMVectorSet(0.0f, gravity, 0.0f, 0.0f);
-	auto cube_start = XMLoadFloat3(&start_point);
-	auto cube_location_v = cube_start - g_vector * static_cast<float>(tt * tt) * 0.5f;
-	XMStoreFloat3(&cube_location, cube_location_v);
+	cube_velocity += g_vector * static_cast<float>(dt);
+	cube_position += cube_velocity * static_cast<float>(dt);
+	XMStoreFloat3(&cube_location, cube_position);
 
 
 	ImGui::Begin("Simulation", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
@@ -40,15 +41,15 @@ void simulation::update(const os::clock &clk)
 	if (reset)
 	{
 		angle_deg = 0.f;
-		cube_location = start_point;
-		reset_time = clk.count<sec>();
+		cube_position = XMLoadFloat3(&start_point);
+		cube_velocity = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
 	auto angle = XMConvertToRadians(angle_deg);
     auto &cube_pos = *transforms.at(0);
 	cube_pos = matrix{ XMMatrixIdentity() };
 	cube_pos.data = XMMatrixRotationY(angle);
-	cube_pos.data *= XMMatrixTranslationFromVector(cube_location_v);
+	cube_pos.data *= XMMatrixTranslationFromVector(cube_position);
 	cube_pos.data = XMMatrixTranspose(cube_pos.data);
 }
 
