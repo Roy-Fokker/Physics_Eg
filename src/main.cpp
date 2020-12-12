@@ -42,6 +42,7 @@ auto main() -> int
 {
 	// Data holders
 	bool quit{false};
+	auto gravity {-9.8f};
 	auto cube_mesh = make_cube_mesh();
 	auto cube_matrix = gfx::matrix{};
 	auto cube_body = sim::rigid_body{
@@ -55,7 +56,7 @@ auto main() -> int
 		.size = { 800, 600 },
 	});
 	auto rndr = gfx::renderer(wnd.handle());
-	auto sim = sim::simulation();
+	auto sim = sim::simulation({0.0f, gravity, 0.0f});
 	auto clk = os::clock();
 
 	// Window callbacks
