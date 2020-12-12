@@ -5,14 +5,20 @@
 using namespace sim;
 using namespace DirectX;
 
-namespace 
-{
-	auto gravity = XMFLOAT3(0.0f, -9.8f, 0.0f);
-}
+simulation::simulation(const XMFLOAT3 &gravity_vector) :
+	gravity{gravity_vector}
+{ }
+
+simulation::~simulation() = default;
 
 void simulation::add_body(rigid_body &body)
 {
 	bodies.push_back(&body);
+}
+
+void simulation::change_gravity(const DirectX::XMFLOAT3 &gravity_vector)
+{
+	gravity = gravity_vector;
 }
 
 void simulation::update(const os::clock &clk)
