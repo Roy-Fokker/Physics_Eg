@@ -6,7 +6,7 @@
 #include "gfx/gpu_data.h"
 #include "sim/sim_data.h"
 
-// https://www.toptal.com/game/video-game-physics-part-i-an-introduction-to-rigid-body-dynamics
+#include <imgui.h>
 
 namespace 
 {
@@ -35,6 +35,25 @@ namespace
 				4, 0, 3, 4, 3, 7,
 			}
 		};
+	}
+
+	auto debug_ui(sim::rigid_body &body, float &gravity) -> bool
+	{
+		ImGui::Begin("Debug UI", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+		ImGui::Text("Body Location: %.2f, %.2f, %.2f", body.position.x, body.position.y, body.position.z);
+		ImGui::SliderFloat("Gravity", &gravity, -50.f, 0.f);
+		auto reset = ImGui::Button("Reset");
+
+		ImGui::End();
+
+		if (reset)
+		{
+			body.position = {0.0f, 4.0f, 0.0f};
+			body.velocity = {0.0f, 0.0f, 0.0f};
+		}
+
+		return reset;
 	}
 }
 
@@ -92,9 +111,15 @@ auto main() -> int
 
 		sim::update_transforms(cube_body, cube_matrix);
 
+		if (debug_ui(cube_body, gravity))
+		{
+			sim.change_gravity({0.0f, gravity, 0.0f});
+		}
+
 		rndr.update(clk);
 		rndr.draw();
 	}
 	
 	return 0;
 }
+
