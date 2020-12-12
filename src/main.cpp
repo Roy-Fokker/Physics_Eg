@@ -4,6 +4,9 @@
 #include "sim/simulation.h"
 
 #include "gfx/gpu_data.h"
+#include "sim/sim_data.h"
+
+// https://www.toptal.com/game/video-game-physics-part-i-an-introduction-to-rigid-body-dynamics
 
 namespace 
 {
@@ -41,6 +44,10 @@ auto main() -> int
 	bool quit{false};
 	auto cube_mesh = make_cube_mesh();
 	auto cube_matrix = gfx::matrix{};
+	auto cube_body = sim::rigid_body{
+		.position = {0.0f, 4.0f, 0.0f},
+		.bounding_box = sim::make_bounding_box(cube_mesh)
+	};
 
 	// System objects
 	auto wnd = os::window({
@@ -69,7 +76,7 @@ auto main() -> int
 
 	// Tell system about data
 	rndr.add_mesh(cube_mesh, cube_matrix);
-	sim.add_object(cube_mesh, cube_matrix);
+	sim.add_body(cube_body);
 
 	// Show window
 	wnd.show();
@@ -81,6 +88,8 @@ auto main() -> int
 		clk.tick();
 
 		sim.update(clk);
+
+		sim::update_transforms(cube_body, cube_matrix);
 
 		rndr.update(clk);
 		rndr.draw();

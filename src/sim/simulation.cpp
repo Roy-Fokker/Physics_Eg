@@ -3,7 +3,17 @@
 #include <imgui.h>
 
 using namespace sim;
-using namespace gfx;
+using namespace DirectX;
+
+namespace 
+{
+	auto gravity = XMFLOAT3(0.0f, -9.8f, 0.0f);
+}
+
+void simulation::add_body(rigid_body &body)
+{
+	bodies.push_back(&body);
+}
 
 void simulation::update(const os::clock &clk)
 {
@@ -12,49 +22,22 @@ void simulation::update(const os::clock &clk)
 
     auto dt = clk.delta<sec>();
 	auto tt = clk.count<sec>();
-	static auto angle_deg = 0.0f;
-	angle_deg += 90.0f * static_cast<float>(dt);
-	if (angle_deg >= 360.0f)
+
+	for (auto body : bodies)
 	{
-		angle_deg -= 360.0f;
-	}
-
-	static auto cube_velocity = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	auto g_vector = XMVectorSet(0.0f, -gravity, 0.0f, 0.0f);
-	static auto cube_position = XMLoadFloat3(&start_point);
-
-	cube_velocity += g_vector * static_cast<float>(dt);
-	cube_position += cube_velocity * static_cast<float>(dt);
-	XMStoreFloat3(&cube_location, cube_position);
-
-
-	ImGui::Begin("Simulation", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	ImGui::Text("Elapsed Time: %.2f", tt);
-	ImGui::Text("Cube Angle: %.2f", angle_deg);
-	ImGui::SliderFloat("Gravity", &gravity, 0.f, 50.f);
-	ImGui::Text("Cube Position: %.2f, %.2f, %.2f", cube_location.x, cube_location.y, cube_location.z);
-	reset = ImGui::Button("Reset");
-	ImGui::End();
-
-
-
-	if (reset)
-	{
-		angle_deg = 0.f;
-		cube_position = XMLoadFloat3(&start_point);
-		cube_velocity = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	}
-
-	auto angle = XMConvertToRadians(angle_deg);
-    auto &cube_pos = *transforms.at(0);
-	cube_pos = matrix{ XMMatrixIdentity() };
-	cube_pos.data = XMMatrixRotationY(angle);
-	cube_pos.data *= XMMatrixTranslationFromVector(cube_position);
-	cube_pos.data = XMMatrixTranspose(cube_pos.data);
+		apply_gravity(*body, dt);
+	}	
 }
 
-void simulation::add_object(const gfx::mesh &mesh_, gfx::matrix &transform)
+void simulation::apply_gravity(rigid_body &body, double dt)
 {
-    meshes.emplace_back(&mesh_);
-    transforms.emplace_back(&transform);
+	auto g = XMLoadFloat3(&gravity);
+	auto p = XMLoadFloat3(&body.position);
+	auto v = XMLoadFloat3(&body.velocity);
+
+	v = v + (g * static_cast<float>(dt));
+	p = p + (v * static_cast<float>(dt));
+
+	XMStoreFloat3(&body.velocity, v);
+	XMStoreFloat3(&body.position, p);
 }
