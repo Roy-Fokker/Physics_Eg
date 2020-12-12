@@ -9,6 +9,7 @@
 
 #include <string_view>
 #include <functional>
+#include <numeric>
 #include <memory>
 #include <utility>
 #include <array>
