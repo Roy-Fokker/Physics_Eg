@@ -1,7 +1,5 @@
 #include "simulation.h"
 
-#include <imgui.h>
-
 using namespace sim;
 using namespace DirectX;
 
