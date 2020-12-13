@@ -18,13 +18,15 @@ namespace gfx
 		~renderer();
 
 		auto on_resize(uintptr_t wParam, uintptr_t lParam) -> bool;
+		void camera_at(const DirectX::XMFLOAT3 &position, const DirectX::XMFLOAT4 &orientation);
 		void update(const os::clock &clk);
 		void draw();
 
 		void add_mesh(const mesh &model, const matrix &transform);
 
 	private:
-		void make_cb();
+		void make_proj_cb();
+		void make_view_cb();
 		
 	private:
 		uint16_t width{}, height{};

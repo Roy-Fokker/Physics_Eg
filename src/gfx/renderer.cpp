@@ -38,7 +38,8 @@ renderer::renderer(HWND hWnd)
 		.pixel_shader_bytecode = os::read_binary_file("ps.cso"),
 	});
 
-	make_cb();
+	make_proj_cb();
+	make_view_cb();
 }
 
 renderer::~renderer() = default;
@@ -53,7 +54,25 @@ auto renderer::on_resize(uintptr_t wParam, uintptr_t lParam) -> bool
 
 	rp = std::make_unique<render_pass>(d3d->get_device(), d3d->get_swapchain());
 
+	make_proj_cb();
+
 	return true;
+}
+
+void renderer::camera_at(const DirectX::XMFLOAT3 &position, const DirectX::XMFLOAT4 &orientation)
+{
+	using namespace DirectX;
+	auto context = d3d->get_context();
+
+	auto cam_pos = XMLoadFloat3(&position);
+	auto cam_orient = XMQuaternionNormalize(XMLoadFloat4(&orientation));
+
+	auto view = matrix{ XMMatrixIdentity() };
+	view.data *= XMMatrixTranslationFromVector(cam_pos);
+	view.data *= XMMatrixRotationQuaternion(cam_orient);
+
+	view.data = XMMatrixTranspose(view.data);
+	view_cb->update(context, sizeof(matrix), reinterpret_cast<const void *>(&view));
 }
 
 void renderer::update(const os::clock &clk)
@@ -120,43 +139,48 @@ void renderer::add_mesh(const mesh &model, const matrix &transform)
 	}));
 }
 
-void renderer::make_cb()
+void renderer::make_proj_cb()
 {
 	using namespace DirectX;
 	auto device = d3d->get_device();
 
-	// Projection
-	{
-		auto aspect_ratio = width / static_cast<float>(height);
-		auto h_fov = XMConvertToRadians(field_of_view);
-		auto v_fov = 2.0f * std::atan(std::tan(h_fov / 2.0f) * aspect_ratio);
+	proj_cb.reset();
 
-		auto projection = matrix{ XMMatrixIdentity() };
-		projection.data = XMMatrixPerspectiveFovLH(v_fov, aspect_ratio, near_z, far_z);
-		projection.data = XMMatrixTranspose(projection.data);
-		proj_cb = std::make_unique<constant_buffer>(device, constant_buffer::desc
-		{
-			.stage = shader_stage::vertex,
-			.slot = shader_slot::projection,
-			.size = sizeof(matrix),
-			.data = reinterpret_cast<const void *>(&projection)
-		});
-	}
+	auto aspect_ratio = width / static_cast<float>(height);
+	auto h_fov = XMConvertToRadians(field_of_view);
+	auto v_fov = 2.0f * std::atan(std::tan(h_fov / 2.0f) * aspect_ratio);
 
-	// View
+	auto projection = matrix{ XMMatrixIdentity() };
+	projection.data = XMMatrixPerspectiveFovLH(v_fov, aspect_ratio, near_z, far_z);
+	projection.data = XMMatrixTranspose(projection.data);
+	proj_cb = std::make_unique<constant_buffer>(device, constant_buffer::desc
 	{
-		auto view = matrix{ XMMatrixIdentity() };
-		auto eye = XMVectorSet(0.0f, 2.0f, 5.0f, 0.0f),
-		     focus = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f),
-		     up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-		view.data = XMMatrixLookAtLH(eye, focus, up);
-		view.data = XMMatrixTranspose(view.data);
-		view_cb = std::make_unique<constant_buffer>(device, constant_buffer::desc
-		{
-			.stage = shader_stage::vertex,
-			.slot = shader_slot::view,
-			.size = sizeof(matrix),
-			.data = reinterpret_cast<const void *>(&view)
-		});
-	}
+		.stage = shader_stage::vertex,
+		.slot = shader_slot::projection,
+		.size = sizeof(matrix),
+		.data = reinterpret_cast<const void *>(&projection)
+	});
+}
+
+void renderer::make_view_cb()
+{
+	using namespace DirectX;
+	auto device = d3d->get_device();
+
+
+	view_cb.reset();
+
+	auto view = matrix{ XMMatrixIdentity() };
+	auto eye = XMVectorSet(0.0f, 0.0f, 4.0f, 0.0f),
+		 focus = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f),
+		 up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	view.data = XMMatrixLookAtLH(eye, focus, up);
+	view.data = XMMatrixTranspose(view.data);
+	view_cb = std::make_unique<constant_buffer>(device, constant_buffer::desc
+	{
+		.stage = shader_stage::vertex,
+		.slot = shader_slot::view,
+		.size = sizeof(matrix),
+		.data = reinterpret_cast<const void *>(&view)
+	});
 }

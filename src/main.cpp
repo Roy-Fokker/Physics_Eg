@@ -37,12 +37,13 @@ namespace
 		};
 	}
 
-	auto debug_ui(sim::rigid_body &body, float &gravity) -> bool
+	auto debug_ui(sim::rigid_body &body, float &gravity, DirectX::XMFLOAT3 &cam_pos, DirectX::XMFLOAT4 &cam_rot) -> bool
 	{
+		auto update {false};
 		ImGui::Begin("Debug UI", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
-		ImGui::Text("Body Location: %.2f, %.2f, %.2f", body.position.x, body.position.y, body.position.z);
-		ImGui::SliderFloat("Gravity", &gravity, -50.f, 0.f);
+		update = update || ImGui::SliderFloat3("Body Location", &body.position.x, -4.0f, 4.0f);
+		update = update || ImGui::SliderFloat("Gravity", &gravity, -50.f, 0.f);
 		auto reset = ImGui::Button("Reset");
 
 		ImGui::End();
@@ -53,14 +54,21 @@ namespace
 			body.velocity = {0.0f, 0.0f, 0.0f};
 		}
 
-		return reset;
+		ImGui::Begin("Camera");
+		update = update || ImGui::SliderFloat3("Position", &cam_pos.x, -10.0f, 10.0f);
+		update = update || ImGui::SliderFloat4("Rotation", &cam_rot.x, -1.0f, 1.0f);
+		ImGui::End();
+
+		return reset || update;
 	}
 }
 
 auto main() -> int
 {
 	// Data holders
-	bool quit{false};
+	auto quit{false};
+	auto cam_pos = DirectX::XMFLOAT3{0.0f, 0.0f, 4.0f};
+	auto cam_rot = DirectX::XMFLOAT4{0.0f, 0.0f, 0.0f, 1.0f};
 	auto gravity {-9.8f};
 	auto cube_mesh = make_cube_mesh();
 	auto cube_matrix = gfx::matrix{};
@@ -98,6 +106,8 @@ auto main() -> int
 	rndr.add_mesh(cube_mesh, cube_matrix);
 	sim.add_body(cube_body);
 
+	rndr.camera_at(cam_pos, cam_rot);
+
 	// Show window
 	wnd.show();
 
@@ -111,9 +121,10 @@ auto main() -> int
 
 		sim::update_transforms(cube_body, cube_matrix);
 
-		if (debug_ui(cube_body, gravity))
+		if (debug_ui(cube_body, gravity, cam_pos, cam_rot))
 		{
 			sim.change_gravity({0.0f, gravity, 0.0f});
+			rndr.camera_at(cam_pos, cam_rot);
 		}
 
 		rndr.update(clk);
