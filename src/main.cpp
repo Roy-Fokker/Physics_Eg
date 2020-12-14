@@ -59,6 +59,13 @@ namespace
 		update = update || ImGui::SliderFloat4("Rotation", &cam_rot.x, -1.0f, 1.0f);
 		ImGui::End();
 
+		{
+			using namespace DirectX;
+
+			auto rot = XMQuaternionNormalize(XMLoadFloat4(&cam_rot));
+			XMStoreFloat4(&cam_rot, rot);
+		}
+
 		return reset || update;
 	}
 }
@@ -68,7 +75,7 @@ auto main() -> int
 	// Data holders
 	auto quit{false};
 	auto cam_pos = DirectX::XMFLOAT3{0.0f, 0.0f, 4.0f};
-	auto cam_rot = DirectX::XMFLOAT4{0.0f, 0.0f, 0.0f, 1.0f};
+	auto cam_rot = DirectX::XMFLOAT4{0.30f, 0.0f, 0.0f, 0.95f};
 	auto gravity {-9.8f};
 	auto cube_mesh = make_cube_mesh();
 	auto cube_matrix = gfx::matrix{};
