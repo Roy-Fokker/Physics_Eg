@@ -12,6 +12,8 @@ target_sources(physics_eg
         main.cpp
         os/window.cpp
         os/window.h
+        os/input.cpp
+        os/input.h
         os/clock.cpp
         os/clock.h
         os/helper.cpp
