@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include <Windowsx.h>
 
 #include <d3d11_4.h>
 #include <dxgi1_6.h>
