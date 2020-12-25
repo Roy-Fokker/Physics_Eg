@@ -104,50 +104,6 @@ auto main() -> int
 		return rndr.on_resize(wParam, lParam);
 	});
 
-	// wnd.set_callback(os::window_msg::mousemove, [&](uintptr_t wParam, uintptr_t lParam)
-	// {
-	// 	using namespace DirectX;
-
-	// 	auto rotate_vector = [](const XMVECTOR &q, const XMVECTOR &v) -> XMVECTOR
-	// 	{
-	// 		auto rotated_vector = v;//XMVectorSetW(v, 1.0f);
-	// 		auto conjugate_quat = XMQuaternionConjugate(q);
-
-	// 		rotated_vector = XMQuaternionMultiply(q, rotated_vector);
-	// 		rotated_vector = XMQuaternionMultiply(rotated_vector, conjugate_quat);
-
-	// 		return XMVector3Normalize(rotated_vector);
-	// 	};
-
-	// 	auto dt = static_cast<float>(clk.delta<sec>());
-	// 	auto rS = 1.0f * dt;
-
-	// 	auto xPos = GET_X_LPARAM(lParam) * rS, 
-	// 		 yPos = GET_Y_LPARAM(lParam) * rS;
-
-	// 	OutputDebugStringA(fmt::format("Mouse Pos: {}, {}\n", GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)).c_str());
-	// 	OutputDebugStringA(fmt::format("Mouse Rot: {}, {}\n\n", xPos, yPos).c_str());
-
-	// 	auto rot = XMLoadFloat4(&cam_rot);
-
-	// 	auto xRot = rotate_vector(rot, XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f)),
-	// 		 yRot = rotate_vector(rot, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-
-	// 	auto xR = XMQuaternionRotationAxis(xRot, yPos), 
-	// 		 yR = XMQuaternionRotationAxis(yRot, xPos);
-
-		
-	// 	rot = XMQuaternionMultiply(xR, rot);
-	// 	rot = XMQuaternionMultiply(rot, yR);
-	// 	//rot = XMQuaternionNormalize(rot);
-
-	// 	XMStoreFloat4(&cam_rot, rot);
-
-	// 	rndr.camera_at(cam_pos, cam_rot);
-
-	// 	return true;
-	// });
-
 	auto update_input = [&]()
 	{
 		using button = os::input_button;
@@ -159,27 +115,29 @@ auto main() -> int
 			return;
 		}
 
+		auto rotate_vector = [](const DirectX::XMVECTOR &q, const DirectX::XMVECTOR &v) -> DirectX::XMVECTOR
+		{
+			using namespace DirectX;
+			
+			auto rotated_vector = v;
+			auto conjugate_quat = XMQuaternionConjugate(q);
+
+			rotated_vector = XMQuaternionMultiply(q, rotated_vector);
+			rotated_vector = XMQuaternionMultiply(rotated_vector, conjugate_quat);
+
+			return XMVector3Normalize(rotated_vector);
+		};
+
+		const auto forward_vector = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+		const auto left_vector    = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+		const auto up_vector      = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
 		auto dt = static_cast<float>(clk.delta<sec>());
 
-		// Rotate Camera
+		auto rotate_camera = [&]()
 		{
 			using axis = os::input_axis;
 			using namespace DirectX;
-
-			auto rotate_vector = [](const XMVECTOR &q, const XMVECTOR &v) -> XMVECTOR
-			{
-				auto rotated_vector = v;
-				auto conjugate_quat = XMQuaternionConjugate(q);
-
-				rotated_vector = XMQuaternionMultiply(q, rotated_vector);
-				rotated_vector = XMQuaternionMultiply(rotated_vector, conjugate_quat);
-
-				return XMVector3Normalize(rotated_vector);
-			};
-
-			const auto forward_vector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-			const auto left_vector    = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
-			const auto up_vector      = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 			auto mouse_x = inpt.get_axis_value(axis::x),
 				 mouse_y = inpt.get_axis_value(axis::y),
@@ -188,16 +146,13 @@ auto main() -> int
 
 			if ((mouse_x | mouse_y | mouse_rx | mouse_ry) == 0)
 			{
-				return;
+				return false;
 			}
-
-			OutputDebugStringA(fmt::format("Mouse Pos: {}, {}\n", mouse_x, mouse_y).c_str());
-			OutputDebugStringA(fmt::format("Mouse Rot: {}, {}\n\n", mouse_rx, mouse_ry).c_str());
 
 			auto rot_speed = 1.0f * dt;
 			auto roll = rot_speed * mouse_rx,
-				 pitch = rot_speed * mouse_y,
-				 yaw = rot_speed * mouse_x;
+				 pitch = -rot_speed * mouse_y,
+				 yaw = -rot_speed * mouse_x;
 
 			auto orientation = XMLoadFloat4(&cam_rot);
 
@@ -215,9 +170,44 @@ auto main() -> int
 
 			XMStoreFloat4(&cam_rot, orientation);
 
-		}
+			return true;
+		}();
 
-		rndr.camera_at(cam_pos, cam_rot);
+		auto move_camera = [&]()
+		{
+			using namespace DirectX;
+
+			auto mov_speed = 1.0f * dt;
+			auto dolly = inpt.which_button(button::S, button::W, state::down),
+				 pan = inpt.which_button(button::A, button::D, state::down),
+				 crane = inpt.which_button(button::E, button::Q, state::down);
+			
+			if ((dolly | pan | crane) == 0)
+			{
+				return false;
+			}
+
+			auto orientation = XMLoadFloat4(&cam_rot);
+			auto position = XMLoadFloat3(&cam_pos);
+
+			auto forward = rotate_vector(orientation, forward_vector);
+			auto left = rotate_vector(orientation, left_vector);
+			auto up = rotate_vector(orientation, up_vector);
+
+			position = (forward * dolly * mov_speed)
+				 	 + (left    * pan   * mov_speed)
+					 + (up      * crane * mov_speed)
+					 + position;
+					
+			XMStoreFloat3(&cam_pos, position);
+
+			return true;
+		}();
+
+		if (rotate_camera or move_camera)
+		{
+			rndr.camera_at(cam_pos, cam_rot);
+		}
 	};
 
 	// Tell system about data
