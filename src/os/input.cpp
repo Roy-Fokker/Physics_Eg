@@ -213,7 +213,21 @@ auto input::get_axis_value(input_axis axis, bool absolute) const -> int16_t
 
 void input::get_initial_state()
 {
-    
+	auto set_button_state = [](input_button btn)
+	{
+		constexpr auto key_is_on = short{0x0001};
+		auto vKey = static_cast<uint8_t>(btn);
+		auto state = ::GetKeyState(vKey);
+		if ((key_is_on & state) != 0)
+		{
+			return button_state::on;
+		}
+		return button_state::off;
+	};
+
+	button_states[VK_CAPITAL] = set_button_state(input_button::caps_lock);
+	button_states[VK_NUMLOCK] = set_button_state(input_button::num_lock);
+	button_states[VK_SCROLL] = set_button_state(input_button::scroll_lock);
 }
 
 void input::process_raw_data(uint32_t count)
@@ -259,7 +273,7 @@ void input::update_keyboard(const RAWKEYBOARD &data)
 	}
 
 	auto button = translate_to_button(vKey, sCode, flags);
-	vKey = static_cast<uint16_t>(button);
+	vKey = static_cast<uint8_t>(button);
 
 	// TODO: Figure out what new key states [up, down, pressed]
 
@@ -298,7 +312,7 @@ void input::update_mouse(const RAWMOUSE &data)
 	auto btnFlags = data.usButtonFlags;
 
 	auto button = translate_to_button(btnFlags);
-	auto vBtn = static_cast<uint16_t>(button);
+	auto vBtn = static_cast<uint8_t>(button);
 
 	// What is the button state?
 	auto btnState = button_state::up;
