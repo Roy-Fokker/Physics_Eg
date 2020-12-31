@@ -39,6 +39,39 @@ namespace
 		};
 	}
 
+	auto make_line_grid()
+	{
+		using namespace DirectX;
+
+		auto grid = gfx::mesh{};
+		auto &vertices = grid.vertices;
+		auto &indices = grid.indicies;
+
+		auto line_idx = 0;
+		for (auto i = -10; i < 10; i++)
+		{
+			vertices.push_back({
+				{ static_cast<float>(i), 0.0f, -10.0f}, {1.0f, 1.0f, 1.0f, 1.0f}
+			});
+			vertices.push_back({
+				{ static_cast<float>(i), 0.0f, 10.0f}, {1.0f, 1.0f, 1.0f, 1.0f}
+			});
+			vertices.push_back({
+				{ -10.0f, 0.0f, static_cast<float>(i)}, {1.0f, 1.0f, 1.0f, 1.0f}
+			});
+			vertices.push_back({
+				{ 10.0f, 0.0f, static_cast<float>(i)}, {1.0f, 1.0f, 1.0f, 1.0f}
+			});
+
+			indices.push_back(line_idx++);
+			indices.push_back(line_idx++);
+			indices.push_back(line_idx++);
+			indices.push_back(line_idx++);
+		}
+
+		return grid;
+	}
+
 	auto debug_ui(sim::rigid_body &body, float &gravity, DirectX::XMFLOAT3 &cam_pos, DirectX::XMFLOAT4 &cam_rot) -> bool
 	{
 		auto update {false};
@@ -79,8 +112,14 @@ auto main() -> int
 	// Data holders
 	auto quit{false};
 	auto cam_pos = DirectX::XMFLOAT3{0.0f, 0.0f, 4.0f};
-	auto cam_rot = DirectX::XMFLOAT4{0.30f, 0.0f, 0.0f, 0.95f};
+	auto cam_rot = DirectX::XMFLOAT4{0.0f, 0.0f, 0.0f, 1.0f};
 	auto gravity {-9.8f};
+
+	auto grid_mesh = make_line_grid();
+	auto grid_matrix = gfx::matrix{};
+	grid_matrix.data = DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+	grid_matrix.data = XMMatrixTranspose(grid_matrix.data);
+
 	auto cube_mesh = make_cube_mesh();
 	auto cube_matrix = gfx::matrix{};
 	auto cube_body = sim::rigid_body{
@@ -211,8 +250,10 @@ auto main() -> int
 	};
 
 	// Tell system about data
-	rndr.add_mesh(cube_mesh, cube_matrix);
+	rndr.add_mesh(cube_mesh, cube_matrix, gfx::pipeline_type::basic);
 	sim.add_body(cube_body);
+
+	rndr.add_mesh(grid_mesh, grid_matrix, gfx::pipeline_type::line_list);
 
 	rndr.camera_at(cam_pos, cam_rot);
 

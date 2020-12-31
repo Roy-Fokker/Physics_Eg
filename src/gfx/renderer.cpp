@@ -6,6 +6,7 @@
 #include <imgui.h>
 
 #include <cppitertools/zip.hpp>
+#include <cppitertools/enumerate.hpp>
 
 using namespace gfx;
 
@@ -26,17 +27,7 @@ renderer::renderer(HWND hWnd)
 
 	ui = std::make_unique<gui>(hWnd, d3d->get_device(), d3d->get_context());
 
-	pl = std::make_unique<pipeline>(d3d->get_device(), pipeline::desc
-	{
-		.blend = blend_mode::opaque,
-		.depth_stencil = depth_stencil_mode::read_write,
-		.rasterizer = rasterizer_mode::cull_anti_clockwise,
-		.sampler = sampler_mode::anisotropic_clamp,
-		.primitive_topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-		.input_element_layout = vertex_elements,
-		.vertex_shader_bytecode = os::read_binary_file("vs.cso"),
-		.pixel_shader_bytecode = os::read_binary_file("ps.cso"),
-	});
+	make_pipelines();
 
 	make_proj_cb();
 	make_view_cb();
@@ -104,19 +95,35 @@ void renderer::draw()
 {
 	auto context = d3d->get_context();
 	
-	pl->activate(context);
+	rp->activate(context);
+	rp->clear(context, clear_color);
 
 	proj_cb->activate(context);
 	view_cb->activate(context);
 
-	rp->activate(context);
-	rp->clear(context, clear_color);
-
-	for (auto &&[mb, cb] : iter::zip(meshes, transforms))
+	for (auto &&[i, pl] : pl_list | iter::enumerate)
 	{
-		cb->activate(context);
-		mb->activate(context);
-		mb->draw(context);
+		auto bucket = pl_mesh_map.bucket(static_cast<pipeline_type>(i));
+
+		if (pl_mesh_map.bucket_size(bucket) == 0)
+		{
+			continue;
+		}
+
+		pl->activate(context);
+
+		for (auto it = pl_mesh_map.cbegin(bucket); 
+			 it != pl_mesh_map.cend(bucket); 
+			 it++)
+		{
+			auto &[m_id, cb_id] = it->second;
+			auto &mb = meshes[m_id];
+			auto &cb = transforms[cb_id];
+
+			cb->activate(context);
+			mb->activate(context);
+			mb->draw(context);
+		}
 	}
 
 	ui->draw_frame();
@@ -124,7 +131,7 @@ void renderer::draw()
 	d3d->present(enable_vSync);
 }
 
-void renderer::add_mesh(const mesh &model, const matrix &transform)
+void renderer::add_mesh(const mesh &model, const matrix &transform, pipeline_type type)
 {
 	auto device = d3d->get_device();
 
@@ -137,6 +144,53 @@ void renderer::add_mesh(const mesh &model, const matrix &transform)
 		.size = sizeof(matrix),
 		.data = reinterpret_cast<const void *>(&transform)
 	}));
+
+	auto m_id = meshes.size() - 1,
+		 cb_id = transforms.size() - 1;
+
+	pl_mesh_map.insert({type, {m_id, cb_id}});
+}
+
+void renderer::make_pipelines()
+{
+	auto pl = static_cast<int>(pipeline_type::basic);
+	pl_list[pl] = std::make_unique<pipeline>(d3d->get_device(), pipeline::desc
+	{
+		.blend = blend_mode::opaque,
+		.depth_stencil = depth_stencil_mode::read_write,
+		.rasterizer = rasterizer_mode::cull_anti_clockwise,
+		.sampler = sampler_mode::anisotropic_clamp,
+		.primitive_topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+		.input_element_layout = vertex_elements,
+		.vertex_shader_bytecode = os::read_binary_file("vs.cso"),
+		.pixel_shader_bytecode = os::read_binary_file("ps.cso"),
+	});
+
+	pl = static_cast<int>(pipeline_type::wireframe);
+	pl_list[pl] = std::make_unique<pipeline>(d3d->get_device(), pipeline::desc
+	{
+		.blend = blend_mode::opaque,
+		.depth_stencil = depth_stencil_mode::read_write,
+		.rasterizer = rasterizer_mode::wireframe,
+		.sampler = sampler_mode::anisotropic_clamp,
+		.primitive_topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+		.input_element_layout = vertex_elements,
+		.vertex_shader_bytecode = os::read_binary_file("vs.cso"),
+		.pixel_shader_bytecode = os::read_binary_file("ps.cso"),
+	});
+
+	pl = static_cast<int>(pipeline_type::line_list);
+	pl_list[pl] = std::make_unique<pipeline>(d3d->get_device(), pipeline::desc
+	{
+		.blend = blend_mode::opaque,
+		.depth_stencil = depth_stencil_mode::read_write,
+		.rasterizer = rasterizer_mode::cull_anti_clockwise,
+		.sampler = sampler_mode::anisotropic_clamp,
+		.primitive_topology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST,
+		.input_element_layout = vertex_elements,
+		.vertex_shader_bytecode = os::read_binary_file("vs.cso"),
+		.pixel_shader_bytecode = os::read_binary_file("ps.cso"),
+	});
 }
 
 void renderer::make_proj_cb()

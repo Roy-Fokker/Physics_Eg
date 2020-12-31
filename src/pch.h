@@ -15,6 +15,7 @@
 #include <utility>
 #include <array>
 #include <vector>
+#include <unordered_map>
 #include <cstdint>
 #include <cassert>
 #include <filesystem>
