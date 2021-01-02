@@ -59,7 +59,7 @@ void renderer::camera_at(const DirectX::XMFLOAT3 &position, const DirectX::XMFLO
 	auto cam_orient = XMQuaternionNormalize(XMLoadFloat4(&orientation));
 
 	auto view = matrix{ XMMatrixIdentity() };
-	view.data *= XMMatrixTranslationFromVector(cam_pos);
+	view.data *= XMMatrixTranslationFromVector(-cam_pos);
 	view.data *= XMMatrixRotationQuaternion(cam_orient);
 
 	view.data = XMMatrixTranspose(view.data);
