@@ -90,16 +90,9 @@ namespace
 		}
 
 		ImGui::Begin("Camera");
-		update = update || ImGui::SliderFloat3("Position", &cam_pos.x, -10.0f, 10.0f);
-		update = update || ImGui::SliderFloat4("Rotation", &cam_rot.x, -1.0f, 1.0f);
+		ImGui::Text("Position: x{%.2f}, y{%.2f}, z{%.2f}", cam_pos.x, cam_pos.y, cam_pos.z);
+		ImGui::Text("Orientation: x{%.2f}, y{%.2f}, z{%.2f}, w{%.2f}", cam_rot.x, cam_rot.y, cam_rot.z, cam_rot.w);
 		ImGui::End();
-
-		{
-			using namespace DirectX;
-
-			auto rot = XMQuaternionNormalize(XMLoadFloat4(&cam_rot));
-			XMStoreFloat4(&cam_rot, rot);
-		}
 
 		return reset || update;
 	}
