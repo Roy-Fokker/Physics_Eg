@@ -50,17 +50,20 @@ namespace
 		auto line_idx = 0;
 		for (auto i = -10; i < 10; i++)
 		{
+			if (i == 0)
+				continue;
+			
 			vertices.push_back({
-				{ static_cast<float>(i), 0.0f, -10.0f}, {1.0f, 1.0f, 1.0f, 1.0f}
+				{ static_cast<float>(i), 0.0f, -10.0f}, {0.5f, 0.5f, 0.5f, 1.0f}
 			});
 			vertices.push_back({
-				{ static_cast<float>(i), 0.0f, 10.0f}, {1.0f, 1.0f, 1.0f, 1.0f}
+				{ static_cast<float>(i), 0.0f, 10.0f}, {0.5f, 0.5f, 0.5f, 1.0f}
 			});
 			vertices.push_back({
-				{ -10.0f, 0.0f, static_cast<float>(i)}, {1.0f, 1.0f, 1.0f, 1.0f}
+				{ -10.0f, 0.0f, static_cast<float>(i)}, {0.5f, 0.5f, 0.5f, 1.0f}
 			});
 			vertices.push_back({
-				{ 10.0f, 0.0f, static_cast<float>(i)}, {1.0f, 1.0f, 1.0f, 1.0f}
+				{ 10.0f, 0.0f, static_cast<float>(i)}, {0.5f, 0.5f, 0.5f, 1.0f}
 			});
 
 			indices.push_back(line_idx++);
@@ -68,6 +71,33 @@ namespace
 			indices.push_back(line_idx++);
 			indices.push_back(line_idx++);
 		}
+
+		vertices.push_back({
+			{ -10.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}
+		});
+		vertices.push_back({
+			{ 10.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}
+		});
+		indices.push_back(line_idx++);
+		indices.push_back(line_idx++);
+
+		vertices.push_back({
+			{ 0.0f, 0.0f, -10.0f}, {0.0f, 0.0f, 1.0f, 1.0f}
+		});
+		vertices.push_back({
+			{ 0.0f, 0.0f, 10.0f}, {0.0f, 0.0f, 1.0f, 1.0f}
+		});
+		indices.push_back(line_idx++);
+		indices.push_back(line_idx++);
+
+		vertices.push_back({
+			{ 0.0f, -10.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}
+		});
+		vertices.push_back({
+			{ 0.0f, 10.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}
+		});
+		indices.push_back(line_idx++);
+		indices.push_back(line_idx++);
 
 		return grid;
 	}
