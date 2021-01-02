@@ -104,7 +104,7 @@ auto main() -> int
 
 	// Data holders
 	auto quit{false};
-	auto cam_pos = DirectX::XMFLOAT3{0.0f, 0.0f, 4.0f};
+	auto cam_pos = DirectX::XMFLOAT3{0.0f, 1.0f, -4.0f};
 	auto cam_rot = DirectX::XMFLOAT4{0.0f, 0.0f, 0.0f, 1.0f};
 	auto gravity {-9.8f};
 
@@ -181,7 +181,7 @@ auto main() -> int
 				return false;
 			}
 
-			auto rot_speed = 1.0f * dt;
+			auto rot_speed = XM_2PI * dt;
 			auto roll = rot_speed * mouse_rx,
 				 pitch = -rot_speed * mouse_y,
 				 yaw = -rot_speed * mouse_x;
@@ -193,12 +193,15 @@ auto main() -> int
 			auto up = rotate_vector(orientation, up_vector);
 
 			auto rot_x = XMQuaternionRotationAxis(left, pitch);
-			auto rot_y = XMQuaternionRotationAxis(up, yaw);
+			//auto rot_y = XMQuaternionRotationAxis(up, yaw);
+			auto rot_y = XMQuaternionRotationAxis(up_vector, yaw);
 			auto rot_z = XMQuaternionRotationAxis(forward, roll);
 
 			orientation = XMQuaternionMultiply(rot_x, orientation);
 			orientation = XMQuaternionMultiply(orientation, rot_y);
 			orientation = XMQuaternionMultiply(rot_z, orientation);
+
+			orientation = XMQuaternionNormalize(orientation);
 
 			XMStoreFloat4(&cam_rot, orientation);
 
@@ -210,9 +213,9 @@ auto main() -> int
 			using namespace DirectX;
 
 			auto mov_speed = 1.0f * dt;
-			auto dolly = inpt.which_button(button::S, button::W, state::down),
-				 pan = inpt.which_button(button::A, button::D, state::down),
-				 crane = inpt.which_button(button::E, button::Q, state::down);
+			auto dolly = inpt.which_button(button::W, button::S, state::down),
+				 pan = inpt.which_button(button::D, button::A, state::down),
+				 crane = inpt.which_button(button::Q, button::E, state::down);
 			
 			if ((dolly | pan | crane) == 0)
 			{
